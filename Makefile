@@ -6,7 +6,7 @@ LDFLAGS = -laubio -laubioext
 
 TARGETS = notes
 ALLOBJS = $(patsubst %.c, %.o, $(wildcard *.c))
-T2MF_OBJS = crack.o midifile.o t2mf.o t2mflex.o yyread.o
+T2MF_OBJS = midifile.o t2mf.o t2mflex.o yyread.o
 NOTES_OBJS = notes.o utils.o $(T2MF_OBJS)
 
 all: $(TARGETS)

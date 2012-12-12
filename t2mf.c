@@ -24,7 +24,6 @@
 
 #include "t2mf.h"
 #include "midifile.h"
-#include "mf2tfuncts.h"
 
 #ifdef NO_YYLENG_VAR
 #define	yyleng yylength
@@ -73,7 +72,6 @@ static long getint(const char *);
 static int getbyte(const char *);
 static int fileputc(unsigned char);
 void error(const char *);
-
 
 static FILE *F;
 
