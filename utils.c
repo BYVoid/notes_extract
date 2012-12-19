@@ -52,7 +52,7 @@ aubio_pickpeak_t * parms;
 /* pitch objects */
 smpl_t pitch               = 0.;
 aubio_pitchdetection_t * pitchdet;
-aubio_pitchdetection_type type_pitch = aubio_pitch_mcomb;
+aubio_pitchdetection_type type_pitch = aubio_pitch_yin;
 aubio_pitchdetection_mode mode_pitch = aubio_pitchm_freq;
 //type_pitch = aubio_pitch_mcomb;
 //type_pitch = aubio_pitch_yinfft;
@@ -82,8 +82,33 @@ smpl_t averaging = 0;
 
 void common_init(int argc, char ** argv) {
   aubio_sndfile_t * onsetfile = NULL;
+  
+  if (argc == 1) {
+    printf("filename pitch_algo(0:mcomb 1:yinfft 2:yin 3:schmitt 4:fcomb)\n");
+    exit(1);
+  }
+  
   /* parse command line arguments */
   input_filename = argv[1];
+  
+  int pitch_algo = atoi(argv[2]);
+  switch (pitch_algo) {
+    case 0:
+      type_pitch = aubio_pitch_mcomb;
+      break;
+    case 1:
+      type_pitch = aubio_pitch_yinfft;
+      break;
+    case 2:
+      type_pitch = aubio_pitch_yin;
+      break;
+    case 3:
+      type_pitch = aubio_pitch_schmitt;
+      break;
+    case 4:
+      type_pitch = aubio_pitch_fcomb;
+      break;
+  }
 
   woodblock = new_fvec(buffer_size,1);
   if (output_filename) {

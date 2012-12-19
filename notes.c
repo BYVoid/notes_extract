@@ -12,7 +12,7 @@ void send_noteon(int pitch, int velo) {
     smpl_t mpitch = floor(aubio_freqtomidi(pitch) + 0.5);
     double curr = frames * overlap_size / (float) samplerate;
     note_pos = curr * note_velocity * 2;
-    if (pitch == 0) return;
+    if (pitch <= 0 || mpitch > 127 || velo < 0 || velo > 127) return;
     fprintf(midi_text, "%d On ch=1 n=%.0f v=%d\n", note_pos, mpitch, velo);
     /*
       if (velo == 0) {

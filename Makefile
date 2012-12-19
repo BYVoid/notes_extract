@@ -29,3 +29,4 @@ onset: $(ONSET_OBJS)
 
 clean :
 	rm -f $(ALLOBJS) $(TARGETS)
+	rm -f *.mid *.txt *.png
