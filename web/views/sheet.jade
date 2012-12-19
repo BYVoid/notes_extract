@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h1 Sheet Music Extractor
+  div
+    audio(controls)
+      source(src="/sheet/" + id + "/ogg")
+      source(src="/sheet/" + id + "/mid")
+      Your browser does not support HTML5 audio player
+  div
+    img(src="/sheet/" + id + "/png")

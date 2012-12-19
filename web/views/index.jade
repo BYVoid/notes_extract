@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  h1 Sheet Music Extractor
+  p Please upload your audio
+  form(action="/upload", method="post", enctype="multipart/form-data")
+    input(type="file", name="audiofile")
+    button(type="submit") Upload
