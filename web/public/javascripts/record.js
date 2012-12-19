@@ -58,7 +58,7 @@ function callback_finished_sending() {
   $('#status').html('Sending...');
   setTimeout(function () {
     window.location = '/latest';
-  }, 1000);
+  }, 3000);
 }
 
 function callback_activityLevel(level) {
