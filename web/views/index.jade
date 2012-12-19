@@ -1,8 +1,23 @@
 extends layout
 
 block content
+  script(src="/javascripts/jquery-1.8.3.js")
+  script(src="/javascripts/jRecorder.js")
+  script(src="/javascripts/record.js")
   h1 Sheet Music Extractor
-  p Please upload your audio
+  p Please humming
+  #recorder(style="display:none")
+    div Time:
+      span#time
+    div Level:
+      span#level
+    #levelbase(style="width:200px;height:20px;background-color:#ffff00")
+      #levelbar(style="height:19px; width:2px;background-color:red")
+    div Status:
+      span#status
+  button#record Record
+  button#send(style="display:none") Submit
+  p Or upload your audio
   form(action="/upload", method="post", enctype="multipart/form-data")
     input(type="file", name="audiofile")
     button(type="submit") Upload

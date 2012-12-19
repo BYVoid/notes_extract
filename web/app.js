@@ -13,6 +13,8 @@ app.configure(function(){
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  app.use(express.cookieParser('Extract Sheet Music'));
+  app.use(express.session());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
 });
@@ -22,13 +24,15 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
+app.get('/latest', routes.latest);
 app.post('/upload', routes.upload);
+app.post('/record', routes.record);
 app.get('/sheet/:id', routes.sheet);
 app.get('/sheet/:id/png', routes.sheetPng);
 app.get('/sheet/:id/mid', routes.sheetMid);
 app.get('/sheet/:id/ogg', routes.sheetOgg);
 app.get('/sheet/:id/txt', routes.sheetTxt);
 
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function() {
   console.log("Express server listening on port " + app.get('port'));
 });

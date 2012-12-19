@@ -3,27 +3,69 @@ var fs = require('fs');
 var child_process = require('child_process');
 
 exports.index = function (req, res) {
+  console.log(req.session.id);
   res.render('index');
 };
 
-exports.upload = function (req, res) {
+var getId = function () {
+  return new Buffer(new Date().getTime().toString()).toString('base64');
+};
+
+var transform = function (id, audioData, filename, next) {
+  var basepath = 'files/' + id;
+  fs.mkdirSync(basepath, 0755);
+  var audioFilename = basepath + '/' + filename;
+  fs.writeFileSync(audioFilename, audioData);
+  child_process.exec('bin/extract.sh ' + basepath + ' ' + filename, function (err, stdout, stderr) {
+    if (err) return next(err);
+    if (stdout) {
+      console.log(stdout);
+    }
+    if (stderr) {
+      console.log(stderr);
+    }
+    next();
+  });
+};
+
+exports.upload = function (req, res, next) {
   var audiofile = req.files.audiofile;
   if (!audiofile) {
     return next();
   }
-  
   var id = path.basename(audiofile.path);
-  var basepath = 'files/' + id;
-  fs.mkdirSync(basepath, 0755);
   var audioData = fs.readFileSync(audiofile.path);
-  var audioFilename = basepath + '/' + audiofile.name;
-  fs.writeFileSync(audioFilename, audioData);
-  
-  child_process.exec('bin/extract.sh ' + basepath + ' ' + audiofile.name, function (err, stdout, stderr) {
+  transform(id, audioData, audiofile.name, function (err) {
     if (err) return next(err);
-    console.log(stdout, stderr);
     res.redirect('/sheet/' + id);
   });
+};
+
+var latestId;
+
+exports.record = function (req, res, next) {
+  var buf;
+  req.on('data', function (data) {
+    if (!buf) {
+      buf = data;
+    } else {
+      var newbuf = new Buffer(buf.length + data.length);
+      buf.copy(newbuf);
+      data.copy(newbuf, buf.length);
+      buf = newbuf;
+    }
+  });
+  req.on('end', function () {
+    var id = getId();
+    transform(id, buf, 'record.wav', function (err) {
+      if (err) return next(err);
+      latestId = id;
+    });
+  });
+};
+
+exports.latest = function (req, res, next) {
+  res.redirect('/sheet/' + latestId);
 };
 
 exports.sheet = function (req, res) {
