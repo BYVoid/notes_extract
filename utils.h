@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
-#include <aubio.h>
 #include <aubioext.h>
 
 #ifdef HAVE_C99_VARARGS_MACROS
@@ -14,6 +13,9 @@
 #define errmsg(format, args...) fprintf(stderr, format , ##args)
 #define outmsg(format, args...) fprintf(stdout, format , ##args)
 #endif
+
+typedef int (*aubio_process_func_t)
+        (smpl_t **input, smpl_t **output, int nframes);
 
 extern int frames;
 extern unsigned int median;
