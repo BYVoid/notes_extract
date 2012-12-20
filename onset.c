@@ -1,26 +1,11 @@
 #include "utils.h"
 
-unsigned int pos = 0; /*frames%dspblocksize*/
-uint_t usepitch = 0;
-
-void process_print (void) {
-  /* output times in seconds, taking back some 
-   * delay to ensure the label is _before_ the
-   * actual onset */
-  if (isonset) {
-    if(frames >= 4) {
-      outmsg("%f\n",(frames-4)*overlap_size/(float)samplerate);
-    } else if (frames < 4) {
-      outmsg("%f\n",0.);
-    }
-  }
-}
+unsigned int pos = 0;
 
 int process(float **input, float **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
-
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* block loop */
@@ -41,7 +26,13 @@ int process(float **input, float **output, int nframes) {
     }
     pos++;
   }
-  process_print();
+  if (isonset) {
+    if(frames >= 4) {
+      outmsg("%f\n",(frames-4)*overlap_size/(float)samplerate);
+    } else if (frames < 4) {
+      outmsg("%f\n",0.);
+    }
+  }
   return 1;
 }
 

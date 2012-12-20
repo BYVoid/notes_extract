@@ -1,10 +1,3 @@
-#include "aubio.h"
-
-#include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 #include "utils.h"
 
 const char * input_filename = NULL;
@@ -109,25 +102,24 @@ void common_init(int argc, char ** argv) {
   channels = aubio_sndfile_channels(file);
   samplerate = aubio_sndfile_samplerate(file);
 
-  ibuf      = new_fvec(overlap_size, channels);
-  obuf      = new_fvec(overlap_size, channels);
-  fftgrain  = new_cvec(buffer_size, channels);
+  ibuf = new_fvec(overlap_size, channels);
+  obuf = new_fvec(overlap_size, channels);
+  fftgrain = new_cvec(buffer_size, channels);
 
-  pitchdet = new_aubio_pitchdetection(buffer_size*4, 
+  pitchdet = new_aubio_pitchdetection(buffer_size * 4, 
       overlap_size, channels, samplerate, type_pitch, mode_pitch);
   aubio_pitchdetection_set_yinthresh(pitchdet, 0.7);
 
-  if (median) {
-    note_buffer = new_fvec(median, 1);
-    note_buffer2= new_fvec(median, 1);
-  }
-  /* phase vocoder */
+  note_buffer = new_fvec(median, 1);
+  note_buffer2= new_fvec(median, 1);
+  
   pv = new_aubio_pvoc(buffer_size, overlap_size, channels);
-  /* onsets */
+  
   parms = new_aubio_peakpicker(threshold);
   o = new_aubio_onsetdetection(type_onset,buffer_size,channels);
   onset = new_fvec(1, channels);
-  if (usedoubled)    {
+  
+  if (usedoubled) {
     o2 = new_aubio_onsetdetection(type_onset2,buffer_size,channels);
     onset2 = new_fvec(1 , channels);
   }
@@ -157,7 +149,7 @@ void common_process(aubio_process_func_t process_func){
   debug("Processing ...\n");
   frames = 0;
   while ((signed)overlap_size == aubio_sndfile_read(file, overlap_size, ibuf)) {
-    isonset=0;
+    isonset = 0;
     process_func(ibuf->data, obuf->data, overlap_size);
     frames++;
   }

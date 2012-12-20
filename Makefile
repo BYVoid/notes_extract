@@ -17,13 +17,13 @@ all: $(TARGETS)
 	$(CC) $(FLAGS) -o $@ $<
 
 notes: $(NOTES_OBJS)
-	gcc $(NOTES_OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(NOTES_OBJS) -o $@ $(LDFLAGS)
 
 beat: $(BEAT_OBJS)
-	gcc $(BEAT_OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(BEAT_OBJS) -o $@ $(LDFLAGS)
 
 onset: $(ONSET_OBJS)
-	gcc $(ONSET_OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(ONSET_OBJS) -o $@ $(LDFLAGS)
 
 .PHONY : clean
 
