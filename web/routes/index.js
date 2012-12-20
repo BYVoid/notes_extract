@@ -3,7 +3,6 @@ var fs = require('fs');
 var child_process = require('child_process');
 
 exports.index = function (req, res) {
-  console.log(req.session.id);
   res.render('index');
 };
 
@@ -11,7 +10,8 @@ var getId = function () {
   return new Buffer(new Date().getTime().toString()).toString('base64');
 };
 
-var transform = function (id, audioData, filename, next) {
+var transform = function (id, audioData, next) {
+  var filename = 'record.wav';
   var basepath = 'files/' + id;
   fs.mkdirSync(basepath, 0755);
   var audioFilename = basepath + '/' + filename;
@@ -35,7 +35,7 @@ exports.upload = function (req, res, next) {
   }
   var id = path.basename(audiofile.path);
   var audioData = fs.readFileSync(audiofile.path);
-  transform(id, audioData, audiofile.name, function (err) {
+  transform(id, audioData, function (err) {
     if (err) return next(err);
     res.redirect('/sheet/' + id);
   });
@@ -57,7 +57,7 @@ exports.record = function (req, res, next) {
   });
   req.on('end', function () {
     var id = getId();
-    transform(id, buf, 'record.wav', function (err) {
+    transform(id, buf, function (err) {
       if (err) return next(err);
       latestId = id;
     });

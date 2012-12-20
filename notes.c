@@ -1,7 +1,6 @@
 #include "utils.h"
 
-unsigned int pos = 0; /*frames%dspblocksize*/
-uint_t usepitch = 1;
+unsigned int pos = 0;
 
 FILE * midi_text;
 
@@ -12,7 +11,7 @@ void send_noteon(int pitch, int velo) {
     smpl_t mpitch = floor(aubio_freqtomidi(pitch) + 0.5);
     double curr = frames * overlap_size / (float) samplerate;
     note_pos = curr * note_velocity * 2;
-    if (pitch <= 0 || mpitch > 127 || velo < 0 || velo > 127) return;
+    if (pitch <= 0 || mpitch <=0 || mpitch > 127 || velo < 0 || velo > 127) return;
     fprintf(midi_text, "%d On ch=1 n=%.0f v=%d\n", note_pos, mpitch, velo);
     /*
       if (velo == 0) {
@@ -48,59 +47,44 @@ int process(float **input, float **output, int nframes) {
     /*time for fft*/
     if (pos == overlap_size - 1) {         
       /* block loop */
-      aubio_pvoc_do (pv, ibuf, fftgrain);
+      aubio_pvoc_do(pv, ibuf, fftgrain);
       aubio_onsetdetection(o, fftgrain, onset);
       if (usedoubled) {
         aubio_onsetdetection(o2, fftgrain, onset2);
         onset->data[0][0] *= onset2->data[0][0];
       }
       isonset = aubio_peakpick_pimrt(onset,parms);
-      
       pitch = aubio_pitchdetection(pitchdet,ibuf);
       if (median) {
         note_append(note_buffer, pitch);
       }
-
-      /* curlevel is negatif or 1 if silence */
+      /* curlevel is negative or 1 if silence */
       curlevel = aubio_level_detection(ibuf, silence);
+      
       if (isonset) {
         /* test for silence */
-        if (curlevel == 1.) {
-          isonset=0;
-          if (median) isready = 0;
+        if (fabs(curlevel - 1) < 1e-6) {
+          isonset = 0;
+          isready = 0;
           /* send note off */
-          send_noteon(curnote,0);
+          send_noteon(curnote, 0);
         } else {
-          if (median) {
-            isready = 1;
-          } else {
-            /* kill old note */
-            send_noteon(curnote,0);
-            /* get and send new one */
-            send_noteon(pitch,127+(int)floor(curlevel));
-            curnote = pitch;
-          }
-          for (pos = 0; pos < overlap_size; pos++) {
-            obuf->data[0][pos] = woodblock->data[0][pos];
-          }
+          isready = 1;
         }
       } else {
-        if (median) {
-          if (isready > 0)
-            isready++;
-          if (isready == median) {
-            /* kill old note */
-            send_noteon(curnote, 0);
-            newnote = get_note(note_buffer, note_buffer2);
-            curnote = newnote;
-            /* get and send new one */
-            if (curnote>45) {
-              send_noteon(curnote, 127 + (int)floor(curlevel));
-            }
+        if (isready > 0) {
+          isready++;
+        }
+        if (isready == median) {
+          /* kill old note */
+          send_noteon(curnote, 0);
+          newnote = get_note(note_buffer, note_buffer2);
+          curnote = newnote;
+          /* get and send new one */
+          if (curnote > 45) {
+            send_noteon(curnote, 127 + (int)floor(curlevel));
           }
-        } // if median
-        for (pos = 0; pos < overlap_size; pos++)
-          obuf->data[0][pos] = 0.;
+        }
       }
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
